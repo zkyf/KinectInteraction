@@ -1,0 +1,7 @@
+template box vk 69
+template jump vk 32
+template lshift vk 160
+template prev mouse wheel 120
+template next mouse wheel -120
+template use mouse rclk
+template esc vk 27

@@ -1,0 +1,4 @@
+template explorer action explorer.exe
+template notepad action notepad.exe
+template python action python.exe
+template taskmgr action taskmgr.exe
