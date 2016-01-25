@@ -1,8 +1,0 @@
-template in mouse wheel 120
-template in3 mouse wheel -120
-template chrome action python
-template cmd action cmd.exe
-template notepad action notepad.exe
-template msconfig action msconfig
-template explorer action explorer.exe
-template taskmgr action taskmgr.exe
