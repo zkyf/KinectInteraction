@@ -31,6 +31,7 @@
     <ResourceCompile Include="BodyBasics.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BodyBasics.h" />
     <ClInclude Include="dollar.h" />
     <ClInclude Include="filter.h" />
     <ClInclude Include="Matrix.h" />

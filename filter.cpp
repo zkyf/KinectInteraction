@@ -350,3 +350,81 @@ Joint Filter::JoyStick(Joint joint)
 	result.Position.Y = dy;
 	return result;
 }
+
+void Filter::LeastSquareInit(int n, int m)
+{
+	LS_List.clear();
+	LS_n = n;
+	LS_m = m;
+	LS_count = 0;
+	if (n <= 0)
+	{
+		MessageBoxA(NULL, "non-positive number used to initialize LeastSquare FIlter", "Error", MB_OK);
+		return;
+	}
+	LS_A = Mat(m, m, CV_64FC1, Scalar(0,0,0));
+	for (int i = 0; i < m; i++)
+	{
+		for (int j = 0; j < m; j++)
+		{
+			LS_A.at<double>(i, j) = 0;
+			if (i == 0 && j == j)
+			{
+				LS_A.at<double>(i, j) = n;
+				continue;
+			}
+			for (int k = 0; k < n; k++)
+			{
+				double t = LS_t0 + LS_delta*k;
+				LS_A.at<double>(i, j) += pow(t, i + j);
+			}
+		}
+	}
+}
+
+Joint Filter::Filter_LeastSquare(Joint joint)
+{
+	LS_count++;
+	LS_List.push_back(joint);
+	while (LS_count > LS_n)
+	{
+		LS_count--;
+		LS_List.erase(LS_List.begin());
+	}
+	if (LS_count < LS_n)
+	{
+		return joint;
+	}
+	//Generate b
+	Mat bx(LS_m, 1, CV_64FC1);
+	Mat by(LS_m, 1, CV_64FC1);
+	for (int i = 0; i < LS_m; i++)
+	{
+		bx.at<double>(i, 0) = 0;
+		by.at<double>(i, 0) = 0;
+		for (int j = 0; j < LS_n; j++)
+		{
+			double t = LS_t0 + j*LS_delta;
+
+			double xt = LS_List[j].Position.X * pow(t, i);
+			bx.at<double>(i, 0) += xt;
+
+			double yt = LS_List[j].Position.Y * pow(t, i);
+			by.at<double>(i, 0) += yt;
+		}
+	}
+	Mat ax = LS_A.inv()*bx;
+	Mat ay = LS_A.inv()*by;
+	double x = 0; double y = 0;
+	double t = LS_t0 + LS_n*LS_delta;
+	for (int i = 0; i < LS_m; i++)
+	{
+		x += ax.at<double>(i, 0)*pow(t, i);
+		y += ay.at<double>(i, 0)*pow(t, i);
+	}
+	Joint result;
+	result = joint;
+	result.Position.X = x;
+	result.Position.Y = y;
+	return result;
+}

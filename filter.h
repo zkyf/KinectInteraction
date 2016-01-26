@@ -1,10 +1,13 @@
 #include "Matrix.h"
 #include "public.h"
+#include <opencv2/opencv.hpp>
+#include <math.h>
 
 #ifndef _FILTER_H_
 #define _FILTER_H_
 
 using namespace ljxMat;
+using namespace cv;
 
 class Filter
 {
@@ -63,6 +66,17 @@ class Filter
 	Joint Filter_Kalman(Joint now);
 
 	Joint JoyStick(Joint joint);
+
+	// Least Square Approximation
+	const double LS_t0 = 0.65;
+	const double LS_delta = 0.1;
+	vector<Joint> LS_List;
+	Mat LS_A;
+	int LS_n;
+	int LS_m;
+	int LS_count;
+	void LeastSquareInit(int n, int m = 4);
+	Joint Filter_LeastSquare(Joint joint);
 
 };
 
