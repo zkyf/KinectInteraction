@@ -1005,6 +1005,13 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 	//手滤波
 	static Filter RightHandFilter;
 	static bool set = false;
+	static int count = 0;
+	count++; count = count % 60;
+	if (count < 3) 
+	{ 
+		joints[JointType_HandRight].Position.X += 0.10; 
+		joints[JointType_HandRight].Position.Y += 0.10;
+	}
 	Joint Right_Median  = RightHandFilter.Filter_Median(joints[JointType_HandRight]); //中位数滤波
 	Joint Right_Average = RightHandFilter.Filter_Average(Right_Median);              //带权均值滤波
 	if (!set)
@@ -1019,7 +1026,7 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 		set = true;
 	}
 	Joint Right_Kalman = RightHandFilter.Filter_Kalman(Right_Median);
-	Joint Right_LS = RightHandFilter.Filter_LeastSquare(joints[JointType_HandRight]);
+	Joint Right_LS = RightHandFilter.Filter_LeastSquare(Right_Median);
 
 	static Filter LeftHandFilter;
 	Joint Left_Median  = LeftHandFilter.Filter_Median(joints[JointType_HandLeft]);    //中位数滤波
@@ -1044,7 +1051,7 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 	{
 		if (record && recording)
 		{
-			ljxWriteRecord(Right_LS, joints[JointType_HandRight], hsRight);
+			ljxWriteRecord(joints[JointType_HandRight], Right_Average, hsRight);
 		}
 		Joint Relative;
 		Relative.Position.X = Right_Average.Position.X - ljx_m_sRight.ShoulderCenter.X;
