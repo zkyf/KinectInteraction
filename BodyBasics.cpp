@@ -1032,6 +1032,7 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 	static Filter LeftHandFilter;
 	Joint Left_Median  = LeftHandFilter.Filter_Median(joints[JointType_HandLeft]);    //中位数滤波
 	Joint Left_Average = LeftHandFilter.Filter_Average(Left_Median);                 //带权均值滤波
+	Joint Left_Particle = LeftHandFilter.Filter_Particle(Left_Median);
 
 	pdrawlist.clear();
 	brushlist.clear();
@@ -1047,6 +1048,7 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 	//肩膀均值滤波
 	ljxCalShoulderPos(joints[JointType_ShoulderRight], Right_Median, hsRight, ljx_m_sRight);
 	ljxCalShoulderPos(joints[JointType_ShoulderLeft], Left_Average, hsLeft, ljx_m_sLeft);
+	//ljxCalShoulderPos(joints[JointType_ShoulderLeft], Left_Particle, hsLeft, ljx_m_sLeft);
 
 	//录制与识别
 	if (ljx_m_bRecording)
