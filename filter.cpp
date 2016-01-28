@@ -452,6 +452,7 @@ Joint Filter::Filter_Particle(Joint now)
 	now_Particle.Position.Y = y;
 	return now_Particle;
 }
+
 void Filter::Particle_Filter::init() {
 	condens = cvCreateConDensation(stateNum,measureNum,sampleNum);
 	lowerBound = cvCreateMat(stateNum, 1, CV_32F);

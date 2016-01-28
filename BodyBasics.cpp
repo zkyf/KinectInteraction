@@ -1006,7 +1006,12 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 	static Filter RightHandFilter;
 	static bool set = false;
 	static int count = 0;
+	static Console console;
+
 	count++; count = count % 60;
+	char msg[255]; sprintf(msg, "count = %d\n", count);
+	console.wirte(msg);
+
 	if (count < 3) 
 	{ 
 		joints[JointType_HandRight].Position.X += 0.10; 
@@ -1041,6 +1046,7 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 	//pdrawlist.push_back(Right_LS);
 	pdrawlist.push_back(Right_Particle);
 	pdrawlist.push_back(joints[JointType_HandRight]);
+
 	brushlist.push_back(BrushBlue);
 	brushlist.push_back(BrushBlack);
 	brushlist.push_back(BrushGreen);
