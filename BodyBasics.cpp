@@ -166,7 +166,8 @@ CBodyBasics::CBodyBasics() :
     m_pBrushBoneInferred(NULL),
     m_pBrushHandClosed(NULL),
     m_pBrushHandOpen(NULL),
-    m_pBrushHandLasso(NULL)
+    m_pBrushHandLasso(NULL),
+		p2draw(0)
 {
     LARGE_INTEGER qpf = {0};
     if (QueryPerformanceFrequency(&qpf))
@@ -1004,6 +1005,13 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 	//手滤波
 	static Filter RightHandFilter;
 	static bool set = false;
+	static int count = 0;
+	count++; count = count % 60;
+	if (count < 3) 
+	{ 
+		joints[JointType_HandRight].Position.X += 0.10; 
+		joints[JointType_HandRight].Position.Y += 0.10;
+	}
 	Joint Right_Median  = RightHandFilter.Filter_Median(joints[JointType_HandRight]); //中位数滤波
 	Joint Right_Average = RightHandFilter.Filter_Average(Right_Median);              //带权均值滤波
 	if (!set)
@@ -1014,13 +1022,27 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 		Matrix ex(4, 4); ex.at(0, 0) = 0.02; ex.at(1, 1) = 0.02; ex.at(2, 2) = 0.02; ex.at(3, 3) = 0.02;
 		Matrix ey(4, 4); ey.at(0, 0) = 0.02; ey.at(1, 1) = 0.02; ey.at(2, 2) = 0.02; ey.at(3, 3) = 0.02;
 		RightHandFilter.Kalman_Set(C, vx, vy, ex, ey);
+		RightHandFilter.LeastSquareInit(4, 2);
 		set = true;
 	}
 	Joint Right_Kalman = RightHandFilter.Filter_Kalman(Right_Median);
+	Joint Right_LS = RightHandFilter.Filter_LeastSquare(Right_Median);
+	Joint Right_Particle = RightHandFilter.Filter_Particle(Right_Median);
 
 	static Filter LeftHandFilter;
 	Joint Left_Median  = LeftHandFilter.Filter_Median(joints[JointType_HandLeft]);    //中位数滤波
 	Joint Left_Average = LeftHandFilter.Filter_Average(Left_Median);                 //带权均值滤波
+
+	pdrawlist.clear();
+	brushlist.clear();
+	p2draw = 2;
+	pdrawlist.push_back(Right_Average);
+	//pdrawlist.push_back(Right_LS);
+	pdrawlist.push_back(Right_Particle);
+	pdrawlist.push_back(joints[JointType_HandRight]);
+	brushlist.push_back(BrushBlue);
+	brushlist.push_back(BrushBlack);
+	brushlist.push_back(BrushGreen);
 
 	//肩膀均值滤波
 	ljxCalShoulderPos(joints[JointType_ShoulderRight], Right_Median, hsRight, ljx_m_sRight);
@@ -1031,7 +1053,7 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 	{
 		if (record && recording)
 		{
-			ljxWriteRecord(Right_Kalman, joints[JointType_HandRight], hsRight);
+			ljxWriteRecord(joints[JointType_HandRight], Right_Average, hsRight);
 		}
 		Joint Relative;
 		Relative.Position.X = Right_Average.Position.X - ljx_m_sRight.ShoulderCenter.X;
@@ -1353,13 +1375,22 @@ void CBodyBasics::ljxShowJoint()
 	MousePos.x = dx;
 	MousePos.y = dy;
 
-	D2D1_ELLIPSE LeftMouse = D2D1::Ellipse(MousePos, 3.0, 3.0);;
-	m_pTempRenderTarget->FillEllipse(LeftMouse, BrushBlue);
+	D2D1_ELLIPSE LeftMouse = D2D1::Ellipse(MousePos, 3.0, 3.0);
+	//m_pTempRenderTarget->FillEllipse(LeftMouse, BrushBlue);
 
 	LeftHand.x = ljx_m_sLeft.Hand.Position.X * width / 2 + width / 2;
 	LeftHand.y = -ljx_m_sLeft.Hand.Position.Y * height / 2 + height / 2;
 	D2D1_ELLIPSE Left = D2D1::Ellipse(LeftHand, 3.0, 3.0);
 	m_pTempRenderTarget->FillEllipse(Left, BrushBlack);
+
+	for (int i = 0; i < p2draw; i++)
+	{
+		D2D1_POINT_2F pos;
+		pos.x = pdrawlist[i].Position.X * width / 2 + width / 2;
+		pos.y = -pdrawlist[i].Position.Y * height / 2 + height / 2;
+		D2D1_ELLIPSE ellipse = D2D1::Ellipse(pos, 3.0, 3.0);
+		m_pTempRenderTarget->FillEllipse(ellipse, brushlist[i]);
+	}
 
 	NewPos.x = ljx_m_sRight.Hand.Position.X * width / 2 + width / 2;
 	NewPos.y = -ljx_m_sRight.Hand.Position.Y * height / 2 + height / 2;

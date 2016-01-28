@@ -1,10 +1,19 @@
 #include "Matrix.h"
 #include "public.h"
+#include <opencv2/opencv.hpp>
+#include <math.h>
+
+#include <opencv/cv.h>
+#include <opencv/cxcore.h>
+#include <opencv/highgui.h>
+#include <opencv/cvaux.h>
+
 
 #ifndef _FILTER_H_
 #define _FILTER_H_
 
 using namespace ljxMat;
+using namespace cv;
 
 class Filter
 {
@@ -38,6 +47,23 @@ class Filter
 	Matrix Kalman_Sy;/*(4, 1)*/
 	Matrix Kalman_Gx;/*(4, 1)*/
 	Matrix Kalman_Gy;/*(4, 1)*/
+	
+	struct Particle_Filter {
+		static const int stateNum=4;
+		static const int measureNum=2;
+		static const int sampleNum=200;
+
+		//??
+		const int winHeight=2;
+		const int winWidth=2;
+	
+		CvConDensation* condens;
+		CvMat* lowerBound;
+		CvMat* upperBound;
+		bool isPredictOnly=false;
+		void init();
+		Joint process(Joint joint);
+	} particleFilter;
 
 	public:
 	Filter();
@@ -61,8 +87,25 @@ class Filter
 	void Kalman_Clear();
 	void Kalman_Set(Matrix C, Matrix vx, Matrix vy, Matrix ex, Matrix ey);
 	Joint Filter_Kalman(Joint now);
-
+	
 	Joint JoyStick(Joint joint);
+
+	// Least Square Approximation
+	const double LS_t0 = 0.65;
+	const double LS_delta = 0.1;
+	vector<Joint> LS_List;
+	Mat LS_A;
+	int LS_n;
+	int LS_m;
+	int LS_count;
+	void LeastSquareInit(int n, int m = 4);
+	Joint Filter_LeastSquare(Joint joint);
+
+	
+	void Particle(Joint joint, double &dx, double &dy);
+	//void Particle_Clear();
+	//void Particle_Set(Matrix C, Matrix vx, Matrix vy, Matrix ex, Matrix ey);
+	Joint Filter_Particle(Joint now);
 
 };
 

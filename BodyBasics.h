@@ -213,6 +213,10 @@ private:
 			ID2D1SolidColorBrush* BrushBlue;
 			ID2D1SolidColorBrush* BrushGreen;
 
+			vector<Joint> pdrawlist;
+			vector<ID2D1SolidColorBrush*> brushlist;
+			int p2draw;
+
 			public:
 			void   ljxProcessGesture(Joint *joints, HandState hsLeft, HandState hsRight);
 			void   ljxCalShoulderPos(Joint Shoulder, Joint Hand, HandState state, Side &side);

@@ -10,7 +10,9 @@ Kalman_Sx(4, 1),
 Kalman_Sy(4, 1),
 Kalman_Gx(4, 1),
 Kalman_Gy(4, 1)
-{}
+{
+	particleFilter.init();
+}
 
 bool cmpx(Joint &p1, Joint p2)
 {
@@ -349,4 +351,182 @@ Joint Filter::JoyStick(Joint joint)
 	result.Position.X = dx;
 	result.Position.Y = dy;
 	return result;
+}
+
+void Filter::LeastSquareInit(int n, int m)
+{
+	LS_List.clear();
+	LS_n = n;
+	LS_m = m;
+	LS_count = 0;
+	if (n <= 0)
+	{
+		MessageBoxA(NULL, "non-positive number used to initialize LeastSquare FIlter", "Error", MB_OK);
+		return;
+	}
+	LS_A = Mat(m, m, CV_64FC1, Scalar(0,0,0));
+	for (int i = 0; i < m; i++)
+	{
+		for (int j = 0; j < m; j++)
+		{
+			LS_A.at<double>(i, j) = 0;
+			if (i == 0 && j == j)
+			{
+				LS_A.at<double>(i, j) = n;
+				continue;
+			}
+			for (int k = 0; k < n; k++)
+			{
+				double t = LS_t0 + LS_delta*k;
+				LS_A.at<double>(i, j) += pow(t, i + j);
+			}
+		}
+	}
+}
+
+Joint Filter::Filter_LeastSquare(Joint joint)
+{
+	LS_count++;
+	LS_List.push_back(joint);
+	while (LS_count > LS_n)
+	{
+		LS_count--;
+		LS_List.erase(LS_List.begin());
+	}
+	if (LS_count < LS_n)
+	{
+		return joint;
+	}
+	//Generate b
+	Mat bx(LS_m, 1, CV_64FC1);
+	Mat by(LS_m, 1, CV_64FC1);
+	for (int i = 0; i < LS_m; i++)
+	{
+		bx.at<double>(i, 0) = 0;
+		by.at<double>(i, 0) = 0;
+		for (int j = 0; j < LS_n; j++)
+		{
+			double t = LS_t0 + j*LS_delta;
+
+			double xt = LS_List[j].Position.X * pow(t, i);
+			bx.at<double>(i, 0) += xt;
+
+			double yt = LS_List[j].Position.Y * pow(t, i);
+			by.at<double>(i, 0) += yt;
+		}
+	}
+	Mat ax = LS_A.inv()*bx;
+	Mat ay = LS_A.inv()*by;
+	double x = 0; double y = 0;
+	double t = LS_t0 + LS_n*LS_delta;
+	for (int i = 0; i < LS_m; i++)
+	{
+		x += ax.at<double>(i, 0)*pow(t, i);
+		y += ay.at<double>(i, 0)*pow(t, i);
+	}
+	Joint result;
+	result = joint;
+	result.Position.X = x;
+	result.Position.Y = y;
+	return result;
+}
+
+
+void Filter::Particle(Joint joint, double &dx, double &dy)
+{
+	Joint p = particleFilter.process(joint);
+	dx = p.Position.X;
+	dy = p.Position.Y;
+}
+
+//void Filter::Particle_Set(Matrix C, Matrix vx, Matrix vy, Matrix ex, Matrix ey)
+//{
+//}
+
+Joint Filter::Filter_Particle(Joint now)
+{
+	double x, y;
+	Particle(now, x, y);
+	Joint now_Particle(now);
+	now_Particle.Position.X = x;
+	now_Particle.Position.Y = y;
+	return now_Particle;
+}
+void Filter::Particle_Filter::init() {
+	condens = cvCreateConDensation(stateNum,measureNum,sampleNum);
+	lowerBound = cvCreateMat(stateNum, 1, CV_32F);
+	upperBound = cvCreateMat(stateNum, 1, CV_32F);
+	lowerBound = cvCreateMat(stateNum, 1, CV_32F);
+	upperBound = cvCreateMat(stateNum, 1, CV_32F);
+	cvmSet(lowerBound,0,0,0.0 ); 
+	cvmSet(upperBound,0,0,winWidth );
+	cvmSet(lowerBound,1,0,0.0 ); 
+	cvmSet(upperBound,1,0,winHeight );
+	cvmSet(lowerBound,2,0,0.0 ); 
+	cvmSet(upperBound,2,0,0.0 );
+	cvmSet(lowerBound,3,0,0.0 ); 
+	cvmSet(upperBound,3,0,0.0 );
+	float A[stateNum][stateNum] ={
+		1,0,1,0,
+		0,1,0,1,
+		0,0,1,0,
+		0,0,0,1
+	};
+	memcpy(condens->DynamMatr,A,sizeof(A));
+	cvConDensInitSampleSet(condens, lowerBound, upperBound);
+			
+	CvRNG rng_state = cvRNG(0xffffffff);
+	for(int i=0; i < sampleNum; i++){
+		condens->flSamples[i][0] = float(cvRandInt( &rng_state ) % winWidth); //width
+		condens->flSamples[i][1] = float(cvRandInt( &rng_state ) % winHeight);//height
+	}
+
+}
+
+Joint Filter::Particle_Filter::process(Joint joint) {
+	CvPoint mousePosition;
+	mousePosition.x = joint.Position.X;
+	mousePosition.y = joint.Position.Y;
+
+	CvPoint predict_pt=cvPoint((int)condens->State[0],(int)condens->State[1]);
+
+	float variance[measureNum]={0};		
+	//get variance/standard deviation of each state
+	for (int i=0;i<measureNum;i++) {
+		//sum
+		float sumState=0;
+		for (int j=0;j<condens->SamplesNum;j++) {
+			sumState+=condens->flSamples[i][j];
+		}
+		//average
+		sumState/=sampleNum;
+		//variance
+		for (int j=0;j<condens->SamplesNum;j++) {
+			variance[i]+=(condens->flSamples[i][j]-sumState)*
+				(condens->flSamples[i][j]-sumState);
+		}
+		variance[i]/=sampleNum-1;
+	}
+	//3.update particals confidence
+	CvPoint pt;
+	if (isPredictOnly) {
+		pt=predict_pt;
+	}else{
+		pt=mousePosition;
+	}
+	for (int i=0;i<condens->SamplesNum;i++) {
+		float probX=(float)exp(-1*(pt.x-condens->flSamples[i][0])
+			*(pt.x-condens->flSamples[i][0])/(2*variance[0]));
+		float probY=(float)exp(-1*(pt.y-condens->flSamples[i][1])
+			*(pt.y-condens->flSamples[i][1])/(2*variance[1]));
+		condens->flConfidence[i]=probX*probY;
+	}
+	//4.update condensation
+	cvConDensUpdateByTime(condens);
+		
+	
+	Joint ret(joint);
+	ret.Position.X = predict_pt.x;
+	ret.Position.Y = predict_pt.y;
+	return ret;
 }

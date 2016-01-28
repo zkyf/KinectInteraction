@@ -1,16 +1,10 @@
-﻿生成启动时间为 2016/1/25 19:30:39。
+﻿生成启动时间为 2016/1/28 10:57:38。
      1>项目“E:\Projects\Visual Studio\KinectInteraction\BodyBasics-D2D.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
-         E:\ProgramFiles\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W1 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt BodyBasics.cpp dollar.cpp filter.cpp Matrix.cpp
+         E:\ProgramFiles\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IE:\ProgramFiles\opencv\build\include /Zi /nologo /W1 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt BodyBasics.cpp
          BodyBasics.cpp
-         dollar.cpp
-     1>dollar.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-         filter.cpp
-         Matrix.cpp
-       ResourceCompile:
-         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\rc.exe /D _UNICODE /D UNICODE /l"0x0409" /nologo /fo"Release\BodyBasics.res" BodyBasics.rc 
        Link:
-         E:\ProgramFiles\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\Projects\Visual Studio\KinectInteraction\Release\BodyBasics-D2D.exe" /INCREMENTAL:NO /NOLOGO kinect20.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:\Projects\Visual Studio\KinectInteraction\Release\BodyBasics-D2D.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\Projects\Visual Studio\KinectInteraction\Release\BodyBasics-D2D.lib" /MACHINE:X86 /SAFESEH Release\BodyBasics.res
+         E:\ProgramFiles\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\Projects\Visual Studio\KinectInteraction\Release\BodyBasics-D2D.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:E:\ProgramFiles\opencv\build\x86\vc12\lib kinect20.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib opencv_calib3d2410.lib opencv_contrib2410.lib opencv_core2410.lib opencv_features2d2410.lib opencv_flann2410.lib opencv_gpu2410.lib opencv_highgui2410.lib opencv_imgproc2410.lib opencv_legacy2410.lib opencv_ml2410.lib opencv_nonfree2410.lib opencv_objdetect2410.lib opencv_photo2410.lib opencv_stitching2410.lib opencv_ts2410.lib opencv_video2410.lib opencv_videostab2410.lib opencv_superres2410.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:\Projects\Visual Studio\KinectInteraction\Release\BodyBasics-D2D.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\Projects\Visual Studio\KinectInteraction\Release\BodyBasics-D2D.lib" /MACHINE:X86 /SAFESEH Release\BodyBasics.res
          Release\BodyBasics.obj
          Release\dollar.obj
          Release\filter.obj
@@ -22,4 +16,4 @@
 
 生成成功。
 
-已用时间 00:00:05.07
+已用时间 00:00:03.01
