@@ -1005,18 +1005,7 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 	//手滤波
 	static Filter RightHandFilter;
 	static bool set = false;
-	static int count = 0;
-	static Console console;
 
-	count++; count = count % 60;
-	char msg[255]; sprintf(msg, "count = %d\n", count);
-	console.wirte(msg);
-
-	if (count < 3) 
-	{ 
-		joints[JointType_HandRight].Position.X += 0.10; 
-		joints[JointType_HandRight].Position.Y += 0.10;
-	}
 	Joint Right_Median  = RightHandFilter.Filter_Median(joints[JointType_HandRight]); //中位数滤波
 	Joint Right_Average = RightHandFilter.Filter_Average(Right_Median);              //带权均值滤波
 	if (!set)
@@ -1160,7 +1149,7 @@ void CBodyBasics::ljxResponse()
 	Relative.Position.X = ljx_m_sLeft.Hand.Position.X - ljx_m_sLeft.ShoulderCenter.X;
 	Relative.Position.Y = ljx_m_sLeft.Hand.Position.Y - ljx_m_sLeft.ShoulderCenter.Y;
 	Relative.Position.Z = ljx_m_sLeft.Hand.Position.Z - ljx_m_sLeft.ShoulderCenter.Z;
-	Filter joystick;
+	static Filter joystick;
 	Joint joy = joystick.JoyStick(Relative);
 
 	INPUT mouse;
@@ -1372,7 +1361,7 @@ void CBodyBasics::ljxShowJoint()
 	Relative.Position.X = ljx_m_sLeft.Hand.Position.X - ljx_m_sLeft.HandLast.Position.X;
 	Relative.Position.Y = ljx_m_sLeft.Hand.Position.Y - ljx_m_sLeft.HandLast.Position.Y;
 	Relative.Position.Z = ljx_m_sLeft.Hand.Position.Z - ljx_m_sLeft.HandLast.Position.Z;
-	Filter joystick;
+	static Filter joystick;
 	Joint joy = joystick.JoyStick(Relative);
 
 	double dx, dy;

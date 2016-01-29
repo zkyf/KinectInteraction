@@ -1,5 +1,7 @@
 #include "filter.h"
 
+Console console;
+
 Filter::Filter() :
 Kalman_ex(4, 4),
 Kalman_ey(4, 4),

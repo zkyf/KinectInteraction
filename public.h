@@ -35,8 +35,9 @@ class Console //控制台类
 	{
 		FreeConsole();
 	}
-	DWORD wirte(string content) //在控制台输出一个字符串
+	DWORD write(string content) //在控制台输出一个字符串
 	{
+		if (!succeed) return -1;
 		DWORD _result = 0;
 		WriteConsoleA(outhandle, content.c_str(), content.length(), &_result, NULL);
 		return _result;
