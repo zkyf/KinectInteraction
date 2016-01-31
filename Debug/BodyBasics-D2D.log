@@ -1,4 +1,4 @@
-﻿生成启动时间为 2016/1/29 7:58:58。
+﻿生成启动时间为 2016/1/31 10:05:54。
      1>项目“F:\Code\Kinect\BodyBasics-D2D-MouseControl\BodyBasics-D2D.vcxproj”在节点 2 上(Build 个目标)。
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(381,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (GestureTestNew.vcxproj).  This can lead to incorrect clean and rebuild behavior.
      1>ClCompile:
@@ -15,4 +15,4 @@
 
 生成成功。
 
-已用时间 00:00:02.46
+已用时间 00:00:03.42

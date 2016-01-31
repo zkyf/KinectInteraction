@@ -1094,28 +1094,26 @@ void CBodyBasics::ljxResponse()
 	//左手动作 - 前进(w)
 	if (ljx_m_sLeft.State != HandState_NotTracked)
 	{
+		if (ljx_m_sLeft.State == HandState_Closed)
+		{
+			INPUT moveforward;
+			moveforward.type = INPUT_KEYBOARD;
+			moveforward.ki.wVk = 0x57;
+			moveforward.ki.dwFlags = 0;
+			moveforward.ki.time = 0;
+			moveforward.ki.dwExtraInfo = 0;
+			if (sendinput) SendInput(1, &moveforward, sizeof(moveforward));
+
+			Sleep(10);
+			moveforward.type = INPUT_KEYBOARD;
+			moveforward.ki.wVk = 0x57;
+			moveforward.ki.dwFlags = KEYEVENTF_KEYUP;
+			moveforward.ki.time = 0;
+			moveforward.ki.dwExtraInfo = 0;
+			if (sendinput) SendInput(1, &moveforward, sizeof(moveforward));
+		}
 		if (ljx_m_sLeft.State != ljx_m_sLeft.StateLast)
 		{
-			if (ljx_m_sLeft.State == HandState_Closed && ljx_m_sLeft.StateLast == HandState_Open)
-			{
-				INPUT moveforward;
-				moveforward.type = INPUT_KEYBOARD;
-				moveforward.ki.wVk = 0x57;
-				moveforward.ki.dwFlags = 0;
-				moveforward.ki.time = 0;
-				moveforward.ki.dwExtraInfo = 0;
-				if(sendinput) SendInput(1, &moveforward, sizeof(moveforward));
-			}
-			if (ljx_m_sLeft.State == HandState_Open && ljx_m_sLeft.StateLast == HandState_Closed)
-			{
-				INPUT moveforward;
-				moveforward.type = INPUT_KEYBOARD;
-				moveforward.ki.wVk = 0x57;
-				moveforward.ki.dwFlags = KEYEVENTF_KEYUP;
-				moveforward.ki.time = 0;
-				moveforward.ki.dwExtraInfo = 0;
-				if (sendinput) SendInput(1, &moveforward, sizeof(moveforward));
-			}
 			if (ljx_m_sLeft.State == HandState_Lasso && ljx_m_sLeft.StateLast == HandState_Open)
 			{
 				INPUT mouse;
