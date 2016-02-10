@@ -106,7 +106,6 @@ class Filter
 	//void Particle_Clear();
 	//void Particle_Set(Matrix C, Matrix vx, Matrix vy, Matrix ex, Matrix ey);
 	Joint Filter_Particle(Joint now);
-
 };
 
 

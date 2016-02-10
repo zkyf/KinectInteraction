@@ -1005,13 +1005,7 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 	//手滤波
 	static Filter RightHandFilter;
 	static bool set = false;
-	static int count = 0;
-	count++; count = count % 60;
-	if (count < 3) 
-	{ 
-		joints[JointType_HandRight].Position.X += 0.10; 
-		joints[JointType_HandRight].Position.Y += 0.10;
-	}
+
 	Joint Right_Median  = RightHandFilter.Filter_Median(joints[JointType_HandRight]); //中位数滤波
 	Joint Right_Average = RightHandFilter.Filter_Average(Right_Median);              //带权均值滤波
 	if (!set)
@@ -1041,6 +1035,7 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 	//pdrawlist.push_back(Right_LS);
 	pdrawlist.push_back(Right_Particle);
 	pdrawlist.push_back(joints[JointType_HandRight]);
+
 	brushlist.push_back(BrushBlue);
 	brushlist.push_back(BrushBlack);
 	brushlist.push_back(BrushGreen);
@@ -1099,28 +1094,26 @@ void CBodyBasics::ljxResponse()
 	//左手动作 - 前进(w)
 	if (ljx_m_sLeft.State != HandState_NotTracked)
 	{
+		if (ljx_m_sLeft.State == HandState_Closed)
+		{
+			INPUT moveforward;
+			moveforward.type = INPUT_KEYBOARD;
+			moveforward.ki.wVk = 0x57;
+			moveforward.ki.dwFlags = 0;
+			moveforward.ki.time = 0;
+			moveforward.ki.dwExtraInfo = 0;
+			if (sendinput) SendInput(1, &moveforward, sizeof(moveforward));
+
+			Sleep(10);
+			moveforward.type = INPUT_KEYBOARD;
+			moveforward.ki.wVk = 0x57;
+			moveforward.ki.dwFlags = KEYEVENTF_KEYUP;
+			moveforward.ki.time = 0;
+			moveforward.ki.dwExtraInfo = 0;
+			if (sendinput) SendInput(1, &moveforward, sizeof(moveforward));
+		}
 		if (ljx_m_sLeft.State != ljx_m_sLeft.StateLast)
 		{
-			if (ljx_m_sLeft.State == HandState_Closed && ljx_m_sLeft.StateLast == HandState_Open)
-			{
-				INPUT moveforward;
-				moveforward.type = INPUT_KEYBOARD;
-				moveforward.ki.wVk = 0x57;
-				moveforward.ki.dwFlags = 0;
-				moveforward.ki.time = 0;
-				moveforward.ki.dwExtraInfo = 0;
-				if(sendinput) SendInput(1, &moveforward, sizeof(moveforward));
-			}
-			if (ljx_m_sLeft.State == HandState_Open && ljx_m_sLeft.StateLast == HandState_Closed)
-			{
-				INPUT moveforward;
-				moveforward.type = INPUT_KEYBOARD;
-				moveforward.ki.wVk = 0x57;
-				moveforward.ki.dwFlags = KEYEVENTF_KEYUP;
-				moveforward.ki.time = 0;
-				moveforward.ki.dwExtraInfo = 0;
-				if (sendinput) SendInput(1, &moveforward, sizeof(moveforward));
-			}
 			if (ljx_m_sLeft.State == HandState_Lasso && ljx_m_sLeft.StateLast == HandState_Open)
 			{
 				INPUT mouse;
@@ -1154,7 +1147,7 @@ void CBodyBasics::ljxResponse()
 	Relative.Position.X = ljx_m_sLeft.Hand.Position.X - ljx_m_sLeft.ShoulderCenter.X;
 	Relative.Position.Y = ljx_m_sLeft.Hand.Position.Y - ljx_m_sLeft.ShoulderCenter.Y;
 	Relative.Position.Z = ljx_m_sLeft.Hand.Position.Z - ljx_m_sLeft.ShoulderCenter.Z;
-	Filter joystick;
+	static Filter joystick;
 	Joint joy = joystick.JoyStick(Relative);
 
 	INPUT mouse;
@@ -1366,7 +1359,7 @@ void CBodyBasics::ljxShowJoint()
 	Relative.Position.X = ljx_m_sLeft.Hand.Position.X - ljx_m_sLeft.HandLast.Position.X;
 	Relative.Position.Y = ljx_m_sLeft.Hand.Position.Y - ljx_m_sLeft.HandLast.Position.Y;
 	Relative.Position.Z = ljx_m_sLeft.Hand.Position.Z - ljx_m_sLeft.HandLast.Position.Z;
-	Filter joystick;
+	static Filter joystick;
 	Joint joy = joystick.JoyStick(Relative);
 
 	double dx, dy;

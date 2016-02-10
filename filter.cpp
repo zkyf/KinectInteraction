@@ -1,5 +1,7 @@
 #include "filter.h"
 
+Console console;
+
 Filter::Filter() :
 Kalman_ex(4, 4),
 Kalman_ey(4, 4),
@@ -452,6 +454,7 @@ Joint Filter::Filter_Particle(Joint now)
 	now_Particle.Position.Y = y;
 	return now_Particle;
 }
+
 void Filter::Particle_Filter::init() {
 	condens = cvCreateConDensation(stateNum,measureNum,sampleNum);
 	lowerBound = cvCreateMat(stateNum, 1, CV_32F);
