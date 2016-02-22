@@ -461,14 +461,14 @@ void Filter::Particle_Filter::init() {
 	upperBound = cvCreateMat(stateNum, 1, CV_32F);
 	lowerBound = cvCreateMat(stateNum, 1, CV_32F);
 	upperBound = cvCreateMat(stateNum, 1, CV_32F);
-	cvmSet(lowerBound,0,0,0.0 ); 
-	cvmSet(upperBound,0,0,winWidth );
-	cvmSet(lowerBound,1,0,0.0 ); 
-	cvmSet(upperBound,1,0,winHeight );
-	cvmSet(lowerBound,2,0,0.0 ); 
-	cvmSet(upperBound,2,0,0.0 );
-	cvmSet(lowerBound,3,0,0.0 ); 
-	cvmSet(upperBound,3,0,0.0 );
+	cvmSet(lowerBound,0,0,0.0);
+	cvmSet(upperBound,0,0,winWidth/8);
+	cvmSet(lowerBound,1,0,0.0);
+	cvmSet(upperBound,1,0,winHeight/8);
+	cvmSet(lowerBound,2,0,0.0);
+	cvmSet(upperBound,2,0,0.0);
+	cvmSet(lowerBound,3,0,0.0);
+	cvmSet(upperBound,3,0,0.0);
 	float A[stateNum][stateNum] ={
 		1,0,1,0,
 		0,1,0,1,
@@ -477,19 +477,18 @@ void Filter::Particle_Filter::init() {
 	};
 	memcpy(condens->DynamMatr,A,sizeof(A));
 	cvConDensInitSampleSet(condens, lowerBound, upperBound);
-			
+
 	CvRNG rng_state = cvRNG(0xffffffff);
 	for(int i=0; i < sampleNum; i++){
 		condens->flSamples[i][0] = float(cvRandInt( &rng_state ) % winWidth); //width
 		condens->flSamples[i][1] = float(cvRandInt( &rng_state ) % winHeight);//height
 	}
-
 }
 
 Joint Filter::Particle_Filter::process(Joint joint) {
 	CvPoint mousePosition;
-	mousePosition.x = joint.Position.X;
-	mousePosition.y = joint.Position.Y;
+	mousePosition.x = (joint.Position.X+1)/2*winWidth;  //
+	mousePosition.y = (joint.Position.Y+1)/2*winHeight;
 
 	CvPoint predict_pt=cvPoint((int)condens->State[0],(int)condens->State[1]);
 
@@ -526,10 +525,10 @@ Joint Filter::Particle_Filter::process(Joint joint) {
 	}
 	//4.update condensation
 	cvConDensUpdateByTime(condens);
-		
+	
 	
 	Joint ret(joint);
-	ret.Position.X = predict_pt.x;
-	ret.Position.Y = predict_pt.y;
+	ret.Position.X = 1.0*predict_pt.x/winWidth*2-1;  //1.0
+	ret.Position.Y = 1.0*predict_pt.y/winHeight*2-1;
 	return ret;
 }

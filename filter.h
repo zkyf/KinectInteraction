@@ -53,10 +53,10 @@ class Filter
 		static const int measureNum=2;
 		static const int sampleNum=200;
 
-		//??
-		const int winHeight=2;
-		const int winWidth=2;
-	
+		//CvPoint保存的是int整数，所以这里要大一些
+		const int winHeight=10000;
+		const int winWidth=10000;
+
 		CvConDensation* condens;
 		CvMat* lowerBound;
 		CvMat* upperBound;
