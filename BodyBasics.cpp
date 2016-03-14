@@ -1004,6 +1004,7 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 	//滤波
 	//手滤波
 	static Filter RightHandFilter;
+	static Filter LeftHandFilter;
 	static bool set = false;
 
 	Joint Right_Median  = RightHandFilter.Filter_Median(joints[JointType_HandRight]); //中位数滤波
@@ -1017,18 +1018,18 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 		Matrix ey(4, 4); ey.at(0, 0) = 0.02; ey.at(1, 1) = 0.02; ey.at(2, 2) = 0.02; ey.at(3, 3) = 0.02;
 		RightHandFilter.Kalman_Set(C, vx, vy, ex, ey);
 		RightHandFilter.LeastSquareInit(4, 2);
+		LeftHandFilter.LeastSquareInit(4, 2);
 		set = true;
 	}
 	Joint Right_Kalman = RightHandFilter.Filter_Kalman(Right_Median);
 	Joint Right_LS = RightHandFilter.Filter_LeastSquare(Right_Median);
 	Joint Right_Particle = RightHandFilter.Filter_Particle(Right_Median);
 
-	static Filter LeftHandFilter;
+
 	Joint Left_Median  = LeftHandFilter.Filter_Median(joints[JointType_HandLeft]);    //中位数滤波
+	Joint Left_LS = LeftHandFilter.Filter_LeastSquare(joints[JointType_HandLeft]);
 	Joint Left_Average = LeftHandFilter.Filter_Average(Left_Median);                 //带权均值滤波
-	Joint Left_Particle = LeftHandFilter.Filter_Particle(Left_Median);
-
-
+	//Joint Left_Particle = LeftHandFilter.Filter_Particle(Left_Median);
 	pdrawlist.clear();
 	brushlist.clear();
 	p2draw = 2;
@@ -1045,14 +1046,14 @@ void CBodyBasics::ljxProcessGesture(Joint *joints, HandState hsLeft, HandState h
 	ljxCalShoulderPos(joints[JointType_ShoulderRight], Right_Median, hsRight, ljx_m_sRight);
 	//ljxCalShoulderPos(joints[JointType_ShoulderRight], Right_Particle, hsRight, ljx_m_sRight);
 	//ljxCalShoulderPos(joints[JointType_ShoulderLeft], Left_Average, hsLeft, ljx_m_sLeft);
-	ljxCalShoulderPos(joints[JointType_ShoulderLeft], Left_Particle, hsLeft, ljx_m_sLeft);
+	ljxCalShoulderPos(joints[JointType_ShoulderLeft], Left_LS, hsLeft, ljx_m_sLeft);
 
 	//录制与识别
 	if (ljx_m_bRecording)
 	{
 		if (record && recording)
 		{
-			ljxWriteRecord(joints[JointType_HandRight], Right_Average, hsRight);
+			ljxWriteRecord(joints[JointType_HandLeft], Left_LS, hsRight);
 		}
 		Joint Relative;
 		Relative.Position.X = Right_Average.Position.X - ljx_m_sRight.ShoulderCenter.X;

@@ -329,21 +329,26 @@ Joint Filter::JoyStick(Joint joint)
 	double y = joint.Position.Y*1.2;
 	double r = sqrt(x*x + y*y);
 	double dr = 0.0;
-	if (fabs(r) <= 0.2)
+	const double r0 = 0.05;
+	const double r1 = 0.15;
+	const double r2 = 0.4;
+	const double s0 = 0.01;
+	const double s1 = 0.04;
+	if (fabs(r) <= r0)
 	{
 		dr = 0;
 	}
-	else if (fabs(r) <= 0.4)
+	else if (fabs(r) <= r1)
 	{
-		dr = (fabs(r) - 0.2)*0.005;
+		dr = (fabs(r) - r0)*s0;
 	}
-	else if (fabs(r) <= 0.6)
+	else if (fabs(r) <= r2)
 	{
-		dr = (fabs(r) - 0.4)*0.01 + 0.001;
+		dr = (fabs(r) - r1)*s1 + (r1-r0)*s0;
 	}
 	else
 	{
-		dr = 0.003;
+		dr = (r2 - r1)*s1 + (r1 - r0)*s0;
 	}
 	double dx = dr / r * x;
 	double dy = dr / r * y;
